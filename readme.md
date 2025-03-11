@@ -1,7 +1,7 @@
-# 🛡️ Secure Gen Payload Generator Framework 🚀
+# 🛡️ Enhanced Secure Payload Generation Framework 🚀
 
 ## 🌟 Project Overview
-Welcome to the **Secure Gen Payload Generator Framework** - your ultimate security assessment companion! This cutting-edge tool is designed to help security professionals, ethical hackers, and developers understand and mitigate potential vulnerabilities through comprehensive security testing capabilities.
+Welcome to the **Enhanced Secure Payload Generation Framework** - your ultimate security assessment companion! This cutting-edge tool is designed to help security professionals, ethical hackers, and developers understand and mitigate potential vulnerabilities through comprehensive security testing capabilities.
 
 ![Security Testing](https://img.shields.io/badge/Security-Testing-red)
 ![Python](https://img.shields.io/badge/Python-3.8+-blue)
@@ -51,10 +51,10 @@ Developed by [Anubhav Mohandas](https://github.com/anubhavmohandas)
 ### Installation Magic ✨
 ```bash
 # Clone the repository
-git clone https://github.com/anubhavmohandas/enhanced-payload-generator.git
+git clone https://github.com/anubhavmohandas/secure_gen.git
 
 # Navigate to the project directory
-cd enhanced-payload-generator
+cd secure_gen
 
 # Run the installation script
 bash ./install.sh
