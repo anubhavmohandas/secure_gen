@@ -123,6 +123,7 @@ if [ $? -ne 0 ]; then
     $PIP install prettytable
     $PIP install requests
     $PIP install pycryptodome
+    $PIP install click  # For CLI commands
     
     # Check if at least core dependencies were installed
     if [ $? -ne 0 ]; then
@@ -135,33 +136,230 @@ else
     echo -e "${GREEN}[+] All dependencies installed successfully${NC}"
 fi
 
-# Create dictionaries directory
-echo -e "${BLUE}[*] Creating dictionaries directory...${NC}"
-mkdir -p dictionaries
-echo -e "${GREEN}[+] Dictionaries directory created${NC}"
+# Create payload directory structure
+echo -e "${BLUE}[*] Creating payload directories...${NC}"
+mkdir -p payloads/{xss,sqli,csrf,ssrf,xxe,rce,lfi,path_traversal,open_redirect,command_injection,ssti,nosql,ldap,xml,deserialization,jwt,oauth,headers,special_chars,file_upload}
 
-# Download common wordlists
-echo -e "${BLUE}[*] Downloading common wordlists...${NC}"
-if command -v curl &>/dev/null; then
-    curl -s https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10-million-password-list-top-1000.txt -o dictionaries/common_passwords.txt
-    curl -s https://raw.githubusercontent.com/danielmiessler/SecLists/master/Fuzzing/SQLi/Generic-SQLi.txt -o dictionaries/sql_payloads.txt
-    curl -s https://raw.githubusercontent.com/danielmiessler/SecLists/master/Fuzzing/XSS/XSS-Jhaddix.txt -o dictionaries/xss_payloads.txt
-elif command -v wget &>/dev/null; then
-    wget -q https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10-million-password-list-top-1000.txt -O dictionaries/common_passwords.txt
-    wget -q https://raw.githubusercontent.com/danielmiessler/SecLists/master/Fuzzing/SQLi/Generic-SQLi.txt -O dictionaries/sql_payloads.txt
-    wget -q https://raw.githubusercontent.com/danielmiessler/SecLists/master/Fuzzing/XSS/XSS-Jhaddix.txt -O dictionaries/xss_payloads.txt
-else
-    echo -e "${YELLOW}[!] Neither curl nor wget found. Skipping wordlist download.${NC}"
+echo -e "${GREEN}[+] Payload directories created${NC}"
+
+# Download payload collections from various sources
+echo -e "${BLUE}[*] Downloading payload collections...${NC}"
+
+# Function to download payloads
+download_payloads() {
+    local url=$1
+    local destination=$2
+    local description=$3
+    
+    echo -e "${BLUE}[*] Downloading $description...${NC}"
+    
+    if command -v curl &>/dev/null; then
+        curl -s "$url" -o "$destination"
+    elif command -v wget &>/dev/null; then
+        wget -q "$url" -O "$destination"
+    else
+        echo -e "${YELLOW}[!] Neither curl nor wget found. Skipping download of $description.${NC}"
+        return 1
+    fi
+    
+    if [ -f "$destination" ]; then
+        echo -e "${GREEN}[+] $description downloaded successfully${NC}"
+        return 0
+    else
+        echo -e "${YELLOW}[!] Download of $description failed${NC}"
+        return 1
+    fi
+}
+
+# Download various payload collections
+download_payloads "https://raw.githubusercontent.com/danielmiessler/SecLists/master/Fuzzing/XSS/XSS-Jhaddix.txt" "payloads/xss/jhaddix.txt" "XSS payloads (Jhaddix)"
+download_payloads "https://raw.githubusercontent.com/payloadbox/xss-payload-list/master/Intruder/xss-payload-list.txt" "payloads/xss/payloadbox.txt" "XSS payloads (PayloadBox)"
+
+download_payloads "https://raw.githubusercontent.com/danielmiessler/SecLists/master/Fuzzing/SQLi/Generic-SQLi.txt" "payloads/sqli/generic.txt" "SQL Injection payloads"
+download_payloads "https://raw.githubusercontent.com/payloadbox/sql-injection-payload-list/master/Intruder/detect/Generic_ErrorBased.txt" "payloads/sqli/error_based.txt" "SQL Error-based payloads"
+
+download_payloads "https://raw.githubusercontent.com/payloadbox/command-injection-payload-list/master/command-injection-payload-list.txt" "payloads/command_injection/payloads.txt" "Command Injection payloads"
+
+download_payloads "https://raw.githubusercontent.com/payloadbox/rce-payload-list/master/command-execution-payload-list.txt" "payloads/rce/payloads.txt" "RCE payloads"
+
+download_payloads "https://raw.githubusercontent.com/danielmiessler/SecLists/master/Fuzzing/LFI/LFI-Jhaddix.txt" "payloads/lfi/jhaddix.txt" "LFI payloads"
+
+download_payloads "https://raw.githubusercontent.com/payloadbox/xxe-injection-payload-list/master/XXE/XXE-FTP-NETDOC.txt" "payloads/xxe/payloads.txt" "XXE payloads"
+
+download_payloads "https://raw.githubusercontent.com/payloadbox/open-redirect-payload-list/master/Open-Redirect-payloads.txt" "payloads/open_redirect/payloads.txt" "Open Redirect payloads"
+
+download_payloads "https://raw.githubusercontent.com/payloadbox/ssrf-payload-list/master/Intruder/SSRF_Payloads.txt" "payloads/ssrf/payloads.txt" "SSRF payloads"
+
+download_payloads "https://raw.githubusercontent.com/swisskyrepo/PayloadsAllTheThings/master/Server%20Side%20Template%20Injection/Intruder/ssti.txt" "payloads/ssti/payloads.txt" "SSTI payloads"
+
+download_payloads "https://raw.githubusercontent.com/payloadbox/csv-injection-payload-list/master/CSV-Injection-Payload-List.txt" "payloads/special_chars/csv_injection.txt" "CSV Injection payloads"
+
+download_payloads "https://raw.githubusercontent.com/danielmiessler/SecLists/master/Fuzzing/special-chars.txt" "payloads/special_chars/special_chars.txt" "Special characters"
+
+# Create the payloadfor command utility
+echo -e "${BLUE}[*] Creating payloadfor command utility...${NC}"
+
+cat > payloadfor << 'EOF'
+#!/bin/bash
+
+# payloadfor - A utility to quickly find payloads for specific vulnerabilities
+# Part of Enhanced Secure Payload Generation Framework
+
+# Text colors
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Directory where payloads are stored
+PAYLOAD_DIR=$(dirname "$(readlink -f "$0")")/payloads
+
+# Function to display usage
+function show_usage {
+    echo -e "${BLUE}Usage:${NC} payloadfor <vulnerability_type> [options]"
+    echo ""
+    echo -e "${BLUE}Available vulnerability types:${NC}"
+    
+    # Get list of available payload directories
+    payload_types=$(ls -1 "$PAYLOAD_DIR" 2>/dev/null | sort)
+    
+    if [ -z "$payload_types" ]; then
+        echo -e "${RED}No payload collections found!${NC}"
+    else
+        for type in $payload_types; do
+            echo -e "  ${GREEN}$type${NC}"
+        done
+    fi
+    
+    echo ""
+    echo -e "${BLUE}Options:${NC}"
+    echo "  -c, --count       Show the count of available payloads"
+    echo "  -r, --random      Show a random payload"
+    echo "  -l, --limit N     Limit output to N payloads (default: all)"
+    echo "  -f, --filter STR  Filter payloads containing STR"
+    echo ""
+    echo -e "${BLUE}Examples:${NC}"
+    echo "  payloadfor xss              # List all XSS payloads"
+    echo "  payloadfor sqli --random    # Show a random SQL injection payload"
+    echo "  payloadfor rce --limit 5    # Show 5 RCE payloads"
+    echo "  payloadfor lfi --filter php # Show LFI payloads containing 'php'"
+}
+
+# Check if no arguments provided
+if [ $# -eq 0 ]; then
+    show_usage
+    exit 0
 fi
 
-if [ -f dictionaries/common_passwords.txt ]; then
-    echo -e "${GREEN}[+] Wordlists downloaded successfully${NC}"
-else
-    echo -e "${YELLOW}[!] Wordlist download failed or skipped. The tool will use built-in wordlists.${NC}"
+VULNERABILITY_TYPE=$1
+shift
+
+# Check if the vulnerability type exists
+if [ ! -d "$PAYLOAD_DIR/$VULNERABILITY_TYPE" ]; then
+    echo -e "${RED}Error:${NC} Payload collection for '$VULNERABILITY_TYPE' not found."
+    echo ""
+    show_usage
+    exit 1
 fi
+
+# Default values
+COUNT_ONLY=false
+RANDOM_PAYLOAD=false
+LIMIT=0
+FILTER=""
+
+# Parse options
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -c|--count)
+            COUNT_ONLY=true
+            shift
+            ;;
+        -r|--random)
+            RANDOM_PAYLOAD=true
+            shift
+            ;;
+        -l|--limit)
+            LIMIT=$2
+            shift 2
+            ;;
+        -f|--filter)
+            FILTER=$2
+            shift 2
+            ;;
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        *)
+            echo -e "${RED}Error:${NC} Unknown option: $1"
+            show_usage
+            exit 1
+            ;;
+    esac
+done
+
+# Find all payload files for the specified vulnerability type
+PAYLOAD_FILES=$(find "$PAYLOAD_DIR/$VULNERABILITY_TYPE" -type f | sort)
+
+if [ -z "$PAYLOAD_FILES" ]; then
+    echo -e "${RED}Error:${NC} No payload files found for '$VULNERABILITY_TYPE'."
+    exit 1
+fi
+
+# Collect all payloads
+ALL_PAYLOADS=""
+for file in $PAYLOAD_FILES; do
+    if [ -f "$file" ]; then
+        if [ -z "$ALL_PAYLOADS" ]; then
+            ALL_PAYLOADS=$(cat "$file")
+        else
+            ALL_PAYLOADS="$ALL_PAYLOADS"$'\n'"$(cat "$file")"
+        fi
+    fi
+done
+
+# Apply filter if specified
+if [ -n "$FILTER" ]; then
+    ALL_PAYLOADS=$(echo "$ALL_PAYLOADS" | grep -i "$FILTER")
+fi
+
+# Count payloads
+PAYLOAD_COUNT=$(echo "$ALL_PAYLOADS" | grep -v "^$" | wc -l)
+
+# Show count if requested
+if [ "$COUNT_ONLY" = true ]; then
+    echo -e "${BLUE}Payloads for ${GREEN}$VULNERABILITY_TYPE${NC} (Total: ${GREEN}$PAYLOAD_COUNT${NC})"
+    exit 0
+fi
+
+# Show random payload if requested
+if [ "$RANDOM_PAYLOAD" = true ]; then
+    echo -e "${BLUE}Random payload for ${GREEN}$VULNERABILITY_TYPE${NC}:${YELLOW}"
+    echo "$ALL_PAYLOADS" | grep -v "^$" | shuf -n 1
+    echo -e "${NC}"
+    exit 0
+fi
+
+# Apply limit if specified
+if [ "$LIMIT" -gt 0 ]; then
+    echo -e "${BLUE}Payloads for ${GREEN}$VULNERABILITY_TYPE${NC} (Showing ${GREEN}$LIMIT${NC} of ${GREEN}$PAYLOAD_COUNT${NC}):${YELLOW}"
+    echo "$ALL_PAYLOADS" | grep -v "^$" | head -n "$LIMIT"
+    echo -e "${NC}"
+else
+    echo -e "${BLUE}Payloads for ${GREEN}$VULNERABILITY_TYPE${NC} (Total: ${GREEN}$PAYLOAD_COUNT${NC}):${YELLOW}"
+    echo "$ALL_PAYLOADS" | grep -v "^$"
+    echo -e "${NC}"
+fi
+
+exit 0
+EOF
+
+chmod +x payloadfor
 
 # Create a launcher script
-echo -e "${BLUE}[*] Creating launcher script...${NC}"
+echo -e "${BLUE}[*] Creating launcher scripts...${NC}"
 cat > run.sh << 'EOF'
 #!/bin/bash
 # Launcher for Enhanced Payload Generator
@@ -180,15 +378,29 @@ python payload_generator.py "$@"
 EOF
 
 chmod +x run.sh
-echo -e "${GREEN}[+] Launcher script created${NC}"
+
+# Create a symlink to make payloadfor globally accessible
+echo -e "${BLUE}[*] Making payloadfor command globally accessible...${NC}"
+if [ "$EUID" -eq 0 ]; then
+    # If running as root, link to /usr/local/bin
+    ln -sf "$(pwd)/payloadfor" /usr/local/bin/payloadfor
+    echo -e "${GREEN}[+] payloadfor command linked to /usr/local/bin/payloadfor${NC}"
+else
+    # If not root, suggest methods to make it accessible
+    echo -e "${YELLOW}[!] To make payloadfor globally accessible, do one of the following:${NC}"
+    echo -e "   1. Run: ${BLUE}sudo ln -sf $(pwd)/payloadfor /usr/local/bin/payloadfor${NC}"
+    echo -e "   2. Add this directory to your PATH: ${BLUE}export PATH=\$PATH:$(pwd)${NC}"
+    echo -e "      (Add this to your .bashrc or .zshrc for permanent access)"
+fi
 
 # Verify installation
 echo -e "${BLUE}[*] Verifying installation...${NC}"
-if [ -f requirements.txt ] && [ -d env ] && [ -f run.sh ]; then
+if [ -f requirements.txt ] && [ -d env ] && [ -f run.sh ] && [ -f payloadfor ]; then
     echo -e "${GREEN}[+] Installation verified${NC}"
     echo -e "${GREEN}[+] Enhanced Payload Generator has been successfully installed!${NC}"
     echo ""
     echo -e "${BLUE}To run the generator, use: ${YELLOW}./run.sh${NC}"
+    echo -e "${BLUE}To access payloads, use: ${YELLOW}./payloadfor <vulnerability_type>${NC}"
     echo ""
 else
     echo -e "${RED}[!] Installation verification failed${NC}"
@@ -197,9 +409,9 @@ fi
 
 # Additional notes
 echo -e "${BLUE}Additional Notes:${NC}"
-echo -e " - A ${YELLOW}dictionaries${NC} folder has been created for custom wordlists"
-echo -e " - The tool will use built-in wordlists if custom ones are not found"
-echo -e " - Run with ${YELLOW}./run.sh --help${NC} for command line options"
+echo -e " - A ${YELLOW}payloads${NC} directory has been created with various vulnerability categories"
+echo -e " - Use ${YELLOW}./payloadfor --help${NC} to see all available options"
+echo -e " - Run with ${YELLOW}./run.sh --help${NC} for generator command line options"
 echo ""
 echo -e "${BLUE}Thank you for installing the Enhanced Payload Generator${NC}"
 echo -e "${BLUE}Developed by Anubhav Mohandas${NC}"
