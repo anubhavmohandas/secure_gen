@@ -1,0 +1,11 @@
+<script>start("/Users/anubhavmohandas/Documents/Projects/secure_gen/dictionaries/");</script>
+<script>onHasParentDirectory();</script>
+<script>addRow("companies.txt","companies.txt",0,665,"665 B",1741683533,"11/03/2025, 14:28:53");</script>
+<script>addRow("db_keywords.txt","db_keywords.txt",0,440,"440 B",1741683569,"11/03/2025, 14:29:29");</script>
+<script>addRow("domains.txt","domains.txt",0,877,"877 B",1741683598,"11/03/2025, 14:29:58");</script>
+<script>addRow("encodings.txt","encodings.txt",0,395,"395 B",1741683590,"11/03/2025, 14:29:50");</script>
+<script>addRow("languages.txt","languages.txt",0,303,"303 B",1741683548,"11/03/2025, 14:29:08");</script>
+<script>addRow("passwords.txt","passwords.txt",0,704,"704 B",1741683516,"11/03/2025, 14:28:36");</script>
+<script>addRow("special_chars.txt","special_chars.txt",0,138,"138 B",1741683559,"11/03/2025, 14:29:19");</script>
+<script>addRow("system_commands.txt","system_commands.txt",0,395,"395 B",1741683578,"11/03/2025, 14:29:38");</script>
+<script>addRow("tech_keywords.txt","tech_keywords.txt",0,901,"901 B",1741683526,"11/03/2025, 14:28:46");</script>
