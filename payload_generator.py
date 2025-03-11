@@ -11,6 +11,7 @@ import concurrent.futures
 from datetime import datetime
 from typing import List, Dict, Any, Tuple, Optional, Set
 from prettytable import PrettyTable
+import logging
 
 class EnhancedPayloadGenerator:
     def __init__(self):
@@ -19,6 +20,7 @@ class EnhancedPayloadGenerator:
         Developed by Anubhav Mohandas
         Comprehensive Vulnerability Exploitation Toolkit
         """
+        self.enable_logging = True
         self.payload_types = [
             'password_bruteforce',
             'sql_injection',
@@ -70,7 +72,6 @@ class EnhancedPayloadGenerator:
         
         # Advanced logging
         self.log_file = f"payload_gen_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-        self.enable_logging = True
         
     def load_dictionaries(self):
         """
