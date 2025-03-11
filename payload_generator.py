@@ -497,6 +497,13 @@ class EnhancedPayloadGenerator:
         self.payload_storage['password_bruteforce'] = sorted_payloads
         
         return sorted_payloads
+        # Save passwords to a file
+        os.makedirs('payloads/passwords', exist_ok=True)  
+        output_file = 'payloads/passwords/password_list.txt'
+        with open(output_file, 'w') as f:
+            for password in sorted_payloads:
+                f.write(password + '\n')
+        self.log(f"Saved password payloads to {output_file}")
     
     def generate_enhanced_sql_injection(self, database_type: str = None, authentication_method: str = None) -> List[str]:
         """
