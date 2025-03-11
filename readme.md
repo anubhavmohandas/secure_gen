@@ -102,7 +102,7 @@ Options:
 You can also use the framework programmatically in your Python scripts:
 
 ```python
-from enhanced_payload_gen import PayloadGenerator
+from secure_gen import PayloadGenerator
 
 # Initialize the generator
 generator = PayloadGenerator()
