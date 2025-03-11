@@ -216,7 +216,7 @@ payloads/
 This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.
 
 ## 👨‍💻 About the Creator
-**Anubhav Mohandas**
+Created with ❤️ by Anubhav Mohandas **Anubhav Mohandas**
 - 🌐 Security Researcher
 - 🚀 Ethical Hacking Enthusiast
 - 📚 Continuous Learning Advocate
