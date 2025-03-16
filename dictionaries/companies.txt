@@ -1,0 +1,79 @@
+Adobe
+Airbnb
+Alibaba
+Amazon
+AMD
+Apple
+AT&T
+Baidu
+Bank of America
+Berkshire Hathaway
+BlackRock
+BMW
+Boeing
+Booking.com
+ByteDance
+Cisco
+Citigroup
+Coca-Cola
+Comcast
+Dell
+Disney
+eBay
+Exxon Mobil
+Facebook
+FedEx
+Ford
+General Electric
+General Motors
+Goldman Sachs
+Google
+HP
+Huawei
+IBM
+Intel
+JPMorgan Chase
+LinkedIn
+Lockheed Martin
+MasterCard
+McDonald's
+Mercedes-Benz
+Meta
+Microsoft
+Morgan Stanley
+Motorola
+Netflix
+Nike
+Nintendo
+Nvidia
+Oracle
+PayPal
+PepsiCo
+Pfizer
+Philips
+Procter & Gamble
+Qualcomm
+Salesforce
+Samsung
+SAP
+Siemens
+Sony
+SpaceX
+Spotify
+Starbucks
+Target
+Tesla
+TikTok
+Toyota
+Twitter
+Uber
+UPS
+Verizon
+Visa
+Vodafone
+Volkswagen
+Walmart
+Wells Fargo
+Xiaomi
+Yahoo
+Zoom

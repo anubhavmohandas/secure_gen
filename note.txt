@@ -1,0 +1,42 @@
+SecLists - One of the most extensive collections of security wordlists: https://github.com/danielmiessler/SecLists
+FuzzDB - Attack pattern, fuzz strings and malicious inputs: https://github.com/fuzzdb-project/fuzzdb
+PayloadsAllTheThings - A list of useful payloads and bypass for Web Applications: https://github.com/swisskyrepo/PayloadsAllTheThings
+Weakpass - Contains billions of passwords from various breaches: https://weakpass.com/
+Kali Linux Wordlists - If you have Kali Linux installed, check /usr/share/wordlists/
+CrackStation's Password Dictionaries - Large collections of leaked passwords: https://crackstation.net/crackstation-wordlist-password-cracking-dictionary.htm
+RockYou - A famous password leak containing millions of real passwords
+Custom wordlists from tools like CeWL that can crawl websites to generate domain-specific wordlists
+
+
+I can't create complete files directly from those references since they contain vast amounts of data that would be impractical to reproduce here. Each of those resources contains thousands to millions of entries. For example, the RockYou password list alone contains 14 million passwords, and SecLists has numerous files totaling hundreds of megabytes.
+
+Instead, I recommend you download these resources directly:
+
+1. For SecLists, you can clone the repository:
+```bash
+git clone https://github.com/danielmiessler/SecLists.git
+```
+
+2. For FuzzDB:
+```bash
+git clone https://github.com/fuzzdb-project/fuzzdb.git
+```
+
+3. For PayloadsAllTheThings:
+```bash
+git clone https://github.com/swisskyrepo/PayloadsAllTheThings.git
+```
+
+Once downloaded, you'll find relevant files that correspond to what you need:
+
+- For passwords: SecLists/Passwords/
+- For tech keywords: SecLists/Discovery/Web-Content/
+- For companies: SecLists/Miscellaneous/
+- For programming languages: You can compile from various sources in these repos
+- For special chars: FuzzDB/attack/special-chars
+- For database keywords: PayloadsAllTheThings/SQL Injection/
+- For system commands: SecLists/Discovery/Infrastructure/
+- For encoding schemes: Can be compiled from various sections
+- For domain names: SecLists/Discovery/DNS/
+
+These resources are maintained by security professionals and are regularly updated, making them much more comprehensive and useful than what I could reproduce here.

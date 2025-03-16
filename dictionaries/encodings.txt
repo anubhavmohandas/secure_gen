@@ -1,0 +1,48 @@
+ASCII
+UTF-8
+UTF-16
+UTF-32
+Base64
+Hex
+URL
+HTML
+Unicode
+ISO-8859-1
+Windows-1252
+CP437
+EBCDIC
+Morse code
+Binary
+Octal
+Decimal
+Hexadecimal
+ROT13
+Caesar cipher
+Affine cipher
+Substitution cipher
+Transposition cipher
+XOR encoding
+UUencode
+BinHex
+MIME
+Quoted-printable
+Percent encoding
+Punycode
+Base32
+Base58
+Base62
+JWT
+MD5
+SHA-1
+SHA-256
+SHA-512
+bcrypt
+PBKDF2
+Argon2
+Scrypt
+AES
+RSA
+DES
+3DES
+Blowfish
+RC4
